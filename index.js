@@ -1,5 +1,5 @@
 var BasePlugin = require('ember-cli-deploy-plugin');
-var client = require('scp2');
+var scp = require('scp');
 
 module.exports = {
   name: 'ember-cli-deploy-scp',
@@ -9,14 +9,33 @@ module.exports = {
       name: options.name,
 
       defaultConfig: {
-        filePattern: '**/*.{js,css,png}' // default filePattern if it isn't defined in config/dpeloy.js
+        filePattern: '**/*.{js,css,png,jpg}' // default filePattern if it isn't defined in config/dpeloy.js
       },
+
+      requiredConfig: ['username', 'path', 'host'],
 
       upload: function(context) {
         this.log('Uploading...');
-        client.scp('dist/', 'admin:password@example.com:/home/admin/data/', function(err) {
-          this.log(err);
+
+        var options = {
+          file: 'dist/*',
+          user: this.readConfig('username'),
+          host: this.readConfig('host'),
+          port: '22',
+          path: this.readConfig('path')
+        }
+
+        var self = this;
+
+        scp.send(options, function (err) {
+          if (err) {
+            self.log(err);
+          } else {
+            self.log('File transferred.');
+          }
         });
+
+        this.log('Done !');
       }
     });
 
