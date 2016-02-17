@@ -1,4 +1,5 @@
 var BasePlugin = require('ember-cli-deploy-plugin');
+var client = require('scp2');
 
 module.exports = {
   name: 'ember-cli-deploy-scp',
@@ -12,7 +13,10 @@ module.exports = {
       },
 
       upload: function(context) {
-        this.log('blabla...')
+        this.log('Uploading...');
+        client.scp('dist/', 'admin:password@example.com:/home/admin/data/', function(err) {
+          this.log(err);
+        });
       }
     });
 
