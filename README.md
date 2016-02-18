@@ -24,7 +24,7 @@ module.exports = function(environment){
   };
 
   if (environment === 'production') {
-    Env['scp'] = {
+    ENV['scp'] = {
         username: '<your-username>',
         host: '<your-host>',
         path: '<your-serverpath>'
