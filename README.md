@@ -1,26 +1,34 @@
-# Ember-cli-deploy-scp
+# ember-cli-deploy-scp
 
-This README outlines the details of collaborating on this Ember addon.
+Easy deploy your Ember applications via ssh using scp.
 
-## Installation
+### Installation
+Install ember-cli-deploy plugin first:
+```javascript
+ember install ember-cli-deploy
+```
+Then install ember-cli-deploy-scp plugin
+```javascript
+ember install ember-cli-deploy-scp
+```
+### Usage
+Edit your `config/deploy.js` file:
+```javascript
+module.exports = function(environment){
+  var ENV = {
+  };
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
-
-## Running
-
-* `ember server`
-* Visit your app at http://localhost:4200.
-
-## Running Tests
-
-* `npm test` (Runs `ember try:testall` to test your addon against multiple Ember versions)
-* `ember test`
-* `ember test --server`
-
-## Building
-
-* `ember build`
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+  if (environment === 'production') {
+    Env['scp'] = {
+        username: '<your-username>',
+        host: '<your-host>',
+        path: '<your-serverpath>'
+    }
+  };
+  return ENV;
+};
+```
+and start deploying:
+```javascript
+ember deploy production
+```
