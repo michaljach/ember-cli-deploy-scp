@@ -9,7 +9,8 @@ module.exports = {
       name: options.name,
 
       defaultConfig: {
-        filePattern: '**/*.{js,css,png,jpg}' // default filePattern if it isn't defined in config/dpeloy.js
+        filePattern: '**/*.{js,css,png,jpg}', // default filePattern if it isn't defined in config/dpeloy.js
+        port: '22'
       },
 
       requiredConfig: ['username', 'path', 'host'],
@@ -21,7 +22,7 @@ module.exports = {
           file: 'dist/*',
           user: this.readConfig('username'),
           host: this.readConfig('host'),
-          port: '22',
+          port: this.readConfig('port'),
           path: this.readConfig('path')
         }
 
