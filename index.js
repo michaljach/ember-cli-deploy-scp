@@ -10,16 +10,21 @@ module.exports = {
 
       defaultConfig: {
         filePattern: '**/*.{js,css,png,jpg}', // default filePattern if it isn't defined in config/dpeloy.js
-        port: '22'
+        port: '22',
+        directory: 'tmp/deploy-dist/*'
       },
 
       requiredConfig: ['username', 'path', 'host'],
+
+      build: function(context) {
+        this.log('Building...');
+      },
 
       upload: function(context) {
         this.log('Uploading...');
 
         var options = {
-          file: 'dist/*',
+          file: this.readConfig('directory'),
           user: this.readConfig('username'),
           host: this.readConfig('host'),
           port: this.readConfig('port'),
