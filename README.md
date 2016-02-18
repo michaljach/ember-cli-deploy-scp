@@ -4,9 +4,13 @@ Easy deploy your Ember applications via ssh using scp.
 ![ember-cli-deploy-scp](http://i.imgur.com/30TaZJu.png)
 
 ## Installation
-Install ember-cli-deploy plugin first:
+Install ember-cli-deploy first:
 ```javascript
 ember install ember-cli-deploy
+```
+Install ember-cli-deploy-build for automated building:
+```javascript
+ember install ember-cli-deploy-build
 ```
 Then install ember-cli-deploy-scp plugin
 ```javascript
@@ -47,8 +51,8 @@ Host (server address) to connect via SSH.
 Path to uploads files to
 **required**
 #### port 
-SSH port on target server, default: 22.
+SSH port on target server, default: `22`.
 **optional**
 #### directory 
-Directory that will be uploaded, default: tmp/deploy-test.
+Directory that will be uploaded, default: `tmp/deploy-dist/`.
 **optional**
