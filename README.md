@@ -49,3 +49,6 @@ Path to uploads files to
 #### port 
 SSH port on target server, default: 22.
 **optional**
+#### directory 
+Directory that will be uploaded, default: tmp/deploy-test.
+**optional**
