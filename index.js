@@ -1,5 +1,5 @@
 var BasePlugin = require('ember-cli-deploy-plugin');
-var scp = require('scp');
+var Rsync = require('rsync');
 
 module.exports = {
   name: 'ember-cli-deploy-scp',
@@ -9,7 +9,6 @@ module.exports = {
       name: options.name,
 
       defaultConfig: {
-        filePattern: '**/*.{js,css,png,jpg}', // default filePattern if it isn't defined in config/dpeloy.js
         port: '22',
         directory: 'tmp/deploy-dist/*'
       },
@@ -19,26 +18,32 @@ module.exports = {
       build: function(context) {
         this.log('Building...');
       },
-
+      
       upload: function(context) {
         this.log('Uploading...');
+        var MyDate = new Date();
+        var MyDateString;
+        MyDate.setDate(MyDate.getDate());
+        MyDateString = ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
 
-        var options = {
-          file: this.readConfig('directory'),
-          user: this.readConfig('username'),
-          host: this.readConfig('host'),
-          port: this.readConfig('port'),
-          path: this.readConfig('path')
-        }
+        var rsync = new Rsync()
+          .shell('ssh')
+          .flags('az')
+          .source(this.readConfig('directory'))
+          .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/' + MyDateString);
+ 
+        rsync.execute(function(error, code, cmd) {
+            this.log('Done !');
+        });
 
-        var self = this;
-
-        scp.send(options, function (err) {
-          if (err) {
-            self.log(err);
-          } else {
-            self.log('File transferred.');
-          }
+        var rsync_current = new Rsync()
+          .shell('ssh')
+          .flags('az')
+          .source(this.readConfig('directory'))
+          .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/current/web');
+ 
+        rsync_current.execute(function(error, code, cmd) {
+            this.log('Done !');
         });
 
         this.log('Done !');
