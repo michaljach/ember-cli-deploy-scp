@@ -28,7 +28,7 @@ module.exports = {
 
         var rsync = new Rsync()
           .shell('ssh')
-          .flags('az')
+          .flags('rtvu')
           .source(this.readConfig('directory'))
           .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/' + MyDateString);
  
@@ -38,7 +38,7 @@ module.exports = {
 
         var rsync_current = new Rsync()
           .shell('ssh')
-          .flags('az')
+          .flags('rtvu')
           .source(this.readConfig('directory'))
           .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/current/web');
  
