@@ -48,7 +48,7 @@ Username to connect via SSH.
 Host (server address) to connect via SSH.
 **required**
 #### path 
-Path to uploads files to
+Path where latest revision will be deployed to. (All older builds lands in parent directory).
 **required**
 #### port 
 SSH port on target server, default: `22`.
