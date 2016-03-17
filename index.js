@@ -10,7 +10,8 @@ module.exports = {
 
       defaultConfig: {
         port: '22',
-        directory: 'tmp/deploy-dist/*'
+        directory: 'tmp/deploy-dist/*',
+        remoteDir: '/current/web'
       },
 
       requiredConfig: ['username', 'path', 'host'],
@@ -18,7 +19,7 @@ module.exports = {
       build: function(context) {
         this.log('Building...');
       },
-      
+
       upload: function(context) {
         this.log('Uploading...');
         var MyDate = new Date();
@@ -31,7 +32,7 @@ module.exports = {
           .flags('rtvu')
           .source(this.readConfig('directory'))
           .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/' + MyDateString);
- 
+
         rsync.execute(function(error, code, cmd) {
             this.log('Done !');
         });
@@ -40,8 +41,8 @@ module.exports = {
           .shell('ssh')
           .flags('rtvu')
           .source(this.readConfig('directory'))
-          .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/current/web');
- 
+          .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + this.readConfig('remoteDir'));
+
         rsync_current.execute(function(error, code, cmd) {
             this.log('Done !');
         });
