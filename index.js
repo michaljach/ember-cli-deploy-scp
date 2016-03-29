@@ -10,7 +10,8 @@ module.exports = {
 
       defaultConfig: {
         port: '22',
-        directory: 'tmp/deploy-dist/.'
+        directory: 'tmp/deploy-dist/*',
+        remoteDir: '/current/web'
       },
 
       requiredConfig: ['username', 'path', 'host'],
