@@ -10,7 +10,7 @@ module.exports = {
 
       defaultConfig: {
         port: '22',
-        directory: 'tmp/deploy-dist/*'
+        directory: 'tmp/deploy-dist/.'
       },
 
       requiredConfig: ['username', 'path', 'host'],
@@ -18,11 +18,14 @@ module.exports = {
       build: function(context) {
         this.log('Building...');
       },
-      
+
       upload: function(context) {
         this.log('Uploading...');
-        var MyDate = new Date();
-        var MyDateString;
+        var MyDate = new Date(),
+            MyDateString,
+            generatedPath = this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path'),
+            parentPath = generatedPath.substr(0, generatedPath.lastIndexOf("/"));
+
         MyDate.setDate(MyDate.getDate());
         MyDateString = ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
 
@@ -30,8 +33,8 @@ module.exports = {
           .shell('ssh')
           .flags('rtvu')
           .source(this.readConfig('directory'))
-          .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/' + MyDateString);
- 
+          .destination(parentPath + '/' + MyDateString);
+
         rsync.execute(function(error, code, cmd) {
             this.log('Done !');
         });
@@ -40,8 +43,8 @@ module.exports = {
           .shell('ssh')
           .flags('rtvu')
           .source(this.readConfig('directory'))
-          .destination(this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path') + '/current/web');
- 
+          .destination(generatedPath);
+
         rsync_current.execute(function(error, code, cmd) {
             this.log('Done !');
         });
