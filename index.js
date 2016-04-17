@@ -10,7 +10,9 @@ module.exports = {
 
       defaultConfig: {
         port: '22',
-        directory: 'tmp/deploy-dist/.'
+        directory: 'tmp/deploy-dist/.',
+        exclude: false,
+        displayCommands: false
       },
 
       requiredConfig: ['username', 'path', 'host'],
@@ -46,6 +48,26 @@ module.exports = {
         });
       },
 
+      rsync: function (destination){
+         var rsync = new Rsync()
+          .shell('ssh')
+          .flags('rtvu')
+          .source(this.readConfig('directory'))
+          .destination(destination);
+
+        if (this.readConfig('exclude')){
+          rsync.set('exclude', this.readConfig('exclude'));
+        }
+
+        if (this.readConfig('displayCommands')){
+          this.log(rsync.command())
+        }
+
+        rsync.execute(function(error, code, cmd) {
+            this.log('Done !');
+        });
+      },
+
       upload: function(context) {
         this.log('Uploading...');
         var MyDate = new Date(),
@@ -55,27 +77,8 @@ module.exports = {
 
         MyDate.setDate(MyDate.getDate());
         MyDateString = ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
-
-        var rsync = new Rsync()
-          .shell('ssh')
-          .flags('rtvu')
-          .source(this.readConfig('directory'))
-          .destination(parentPath + '/' + MyDateString);
-
-        rsync.execute(function(error, code, cmd) {
-            this.log('Done !');
-        });
-
-        var rsync_current = new Rsync()
-          .shell('ssh')
-          .flags('rtvu')
-          .source(this.readConfig('directory'))
-          .destination(generatedPath);
-
-        rsync_current.execute(function(error, code, cmd) {
-            this.log('Done !');
-        });
-
+        this.rsync(parentPath + '/' + MyDateString);
+        this.rsync(generatedPath);
         this.log('Done !');
       }
     });
