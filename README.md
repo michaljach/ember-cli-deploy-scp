@@ -56,3 +56,9 @@ SSH port on target server, default: `22`.
 #### directory 
 Directory that will be uploaded, default: `tmp/deploy-dist/`.
 **optional**
+#### exclude
+Exclude specified files and directories from uploading.
+**optional**
+#### displayCommands
+More complex logging.
+**optional**
