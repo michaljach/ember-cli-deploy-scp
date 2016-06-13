@@ -49,7 +49,8 @@ module.exports = {
       },
 
       rsync: function (destination){
-         var rsync = new Rsync()
+        var _this = this;
+        var rsync = new Rsync()
           .shell('ssh')
           .flags('rtvu')
           .source(this.readConfig('directory'))
@@ -64,7 +65,7 @@ module.exports = {
         }
 
         rsync.execute(function(error, code, cmd) {
-            this.log('Done !');
+            _this.log('Done !');
         });
       },
 
