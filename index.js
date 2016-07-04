@@ -13,13 +13,17 @@ module.exports = {
         directory: 'tmp/deploy-dist/.',
         exclude: false,
         displayCommands: false,
-        beforeBuild: function(){}
+        beforeBuild: function(){},
+        beforeUpload: function(){}
       },
 
       requiredConfig: ['username', 'path', 'host'],
 
       willBuild: function(context) {
         this.readConfig('beforeBuild')();
+      },
+      willUpload: function(context) {
+        this.readConfig('beforeUpload')();
       },
       build: function(context) {
         this.log('Building...');
