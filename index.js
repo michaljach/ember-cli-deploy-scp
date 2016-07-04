@@ -20,10 +20,10 @@ module.exports = {
       requiredConfig: ['username', 'path', 'host'],
 
       willBuild: function(context) {
-        this.readConfig('beforeBuild')();
+        this.readConfig('beforeBuild');
       },
       willUpload: function(context) {
-        this.readConfig('beforeUpload')();
+        this.readConfig('beforeUpload');
       },
       build: function(context) {
         this.log('Building...');
