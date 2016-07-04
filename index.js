@@ -12,11 +12,15 @@ module.exports = {
         port: '22',
         directory: 'tmp/deploy-dist/.',
         exclude: false,
-        displayCommands: false
+        displayCommands: false,
+        beforeBuild: function(){}
       },
 
       requiredConfig: ['username', 'path', 'host'],
 
+      willBuild: function(context) {
+        this.readConfig('beforeBuild')();
+      },
       build: function(context) {
         this.log('Building...');
       },
