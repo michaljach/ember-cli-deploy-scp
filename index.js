@@ -59,7 +59,7 @@ module.exports = {
       rsync: function (destination){
         var _this = this;
         var rsync = new Rsync()
-          .shell('ssh')
+          .shell('ssh -p '+this.readConfig('port'))
           .flags('rtvu')
           .source(this.readConfig('directory'))
           .destination(destination);
