@@ -61,7 +61,7 @@ module.exports = {
         var _this = this;
         var rsync = new Rsync()
           .shell('ssh -p '+this.readConfig('port'))
-          .flags(this.readConfig('flags))
+          .flags(this.readConfig('flags'))
           .source(this.readConfig('directory'))
           .destination(destination);
 
