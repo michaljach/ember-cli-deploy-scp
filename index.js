@@ -12,6 +12,7 @@ module.exports = {
         port: '22',
         directory: 'tmp/deploy-dist/.',
         exclude: false,
+        flags: 'rtvu',
         displayCommands: false,
         beforeBuild: function(){},
         beforeUpload: function(){}
@@ -60,7 +61,7 @@ module.exports = {
         var _this = this;
         var rsync = new Rsync()
           .shell('ssh -p '+this.readConfig('port'))
-          .flags('rtvu')
+          .flags(this.readConfig('flags))
           .source(this.readConfig('directory'))
           .destination(destination);
 
