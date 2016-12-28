@@ -62,3 +62,6 @@ Exclude specified files and directories from uploading.
 #### displayCommands
 More complex logging.
 **optional**
+#### flags
+Flags to pass to the [rsync](https://www.npmjs.com/package/rsync#flagsflags-set) command, default: `rtvu`.
+**optional**
