@@ -66,7 +66,7 @@ module.exports = {
           .destination(destination);
 
         if (this.readConfig('exclude')){
-          rsync.set('exclude', this.readConfig('exclude'));
+          rsync.exclude(this.readConfig('exclude'));
         }
 
         if (this.readConfig('displayCommands')){
