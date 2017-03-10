@@ -1,4 +1,4 @@
-# ember-cli-deploy-scp ![Build Status](https://travis-ci.org/michaljach/ember-cli-deploy-scp.svg?branch=master)
+# ember-cli-deploy-scp [![Build Status](https://travis-ci.org/michaljach/ember-cli-deploy-scp.svg?branch=master)](https://travis-ci.org/michaljach/ember-cli-deploy-scp)
 Easy deploy your Ember applications via ssh using scp.
 
 ![ember-cli-deploy-scp](http://i.imgur.com/30TaZJu.png)
