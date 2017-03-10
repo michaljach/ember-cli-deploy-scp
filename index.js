@@ -29,34 +29,6 @@ module.exports = {
       build: function(context) {
         this.log('Building...');
       },
-
-      fetchRevisions: function(keyPrefix) {
-        var self = this;
-        return Promise.resolve(function(){
-          return [
-              {
-                revision: 'abc123', // mandatory
-                version: 'v1',
-                timestamp: 1438232435000, // milliseconds since epoch
-                deployer: 'cats'
-              },
-              {
-                revision: 'def456',
-                version: 'v2',
-                timestamp: 1032123128000,
-                deployer: 'dogs',
-                active: true // indicate whether this revision is activated
-              }
-            ]
-        }())
-        .then(function(revisions){
-          return { revisions: revisions };
-        })
-        .catch(function(err) {
-          self.log(err);
-        });
-      },
-
       rsync: function (destination){
         var _this = this;
         var rsync = new Rsync()
