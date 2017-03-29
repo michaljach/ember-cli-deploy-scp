@@ -27,9 +27,8 @@ module.exports = {
         this.readConfig('beforeUpload');
       },
       build: function(context) {
-        this.log('Building...');
       },
-      rsync: function (destination){
+      rsync: function (destination) {
         var _this = this;
         var rsync = new Rsync()
           .shell('ssh -p '+this.readConfig('port'))
@@ -41,17 +40,23 @@ module.exports = {
           rsync.exclude(this.readConfig('exclude'));
         }
 
-        if (this.readConfig('displayCommands')){
+        if (this.readConfig('displayCommands')) {
           this.log(rsync.command())
         }
 
-        rsync.execute(function(error, code, cmd) {
-            _this.log('Done !');
+        return new Promise(function(resolve, reject) {
+          rsync.execute(function(error, code, cmd) {
+              if(error) {
+                reject(_this.log(error));
+              } else {
+                _this.log('Done !');
+                resolve();
+              }
+          });
         });
       },
 
       upload: function(context) {
-        this.log('Uploading...');
         var MyDate = new Date(),
             MyDateString,
             generatedPath = this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path'),
@@ -59,9 +64,9 @@ module.exports = {
 
         MyDate.setDate(MyDate.getDate());
         MyDateString = ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
+
         this.rsync(parentPath + '/' + MyDateString);
-        this.rsync(generatedPath);
-        this.log('Done !');
+        return this.rsync(generatedPath);
       }
     });
 
