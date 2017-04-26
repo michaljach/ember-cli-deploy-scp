@@ -65,8 +65,9 @@ module.exports = {
         MyDate.setDate(MyDate.getDate());
         MyDateString = ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
 
-        this.rsync(parentPath + '/' + MyDateString);
-        return this.rsync(generatedPath);
+        return this.rsync(parentPath + '/' + MyDateString).then(() => {
+          return this.rsync(generatedPath);
+        });
       }
     });
 
