@@ -56,16 +56,22 @@ module.exports = {
         });
       },
 
+      revisionKey(context) {
+        if (context.revisionData && context.revisionData.revisionKey) {
+          return context.revisionData.revisionKey;
+        }
+
+        var MyDate = new Date();
+        MyDate.setDate(MyDate.getDate());
+
+        return ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
+      },
+
       upload: function(context) {
-        var MyDate = new Date(),
-            MyDateString,
-            generatedPath = this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path'),
+        var generatedPath = this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path'),
             parentPath = generatedPath.substr(0, generatedPath.lastIndexOf("/"));
 
-        MyDate.setDate(MyDate.getDate());
-        MyDateString = ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
-
-        return this.rsync(parentPath + '/' + MyDateString).then(() => {
+        return this.rsync(parentPath + '/' + this.revisionKey(context)).then(() => {
           return this.rsync(generatedPath);
         });
       }
