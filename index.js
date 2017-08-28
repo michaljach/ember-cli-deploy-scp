@@ -14,6 +14,7 @@ module.exports = {
         exclude: false,
         flags: 'rtvu',
         displayCommands: false,
+        options: {},
         beforeBuild: function(){},
         beforeUpload: function(){}
       },
@@ -35,6 +36,10 @@ module.exports = {
           .flags(this.readConfig('flags'))
           .source(this.readConfig('directory'))
           .destination(destination);
+
+        Object.keys(this.readConfig('options')).forEach(function(key) {
+          rsync.set(key, _this.readConfig('options')[key]);
+        });
 
         if (this.readConfig('exclude')){
           rsync.exclude(this.readConfig('exclude'));
