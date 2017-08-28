@@ -41,19 +41,19 @@ ember deploy production
 ## Configuration Options
 
 
-#### username 
+#### username
 Username to connect via SSH.
 **required**
-#### host 
+#### host
 Host (server address) to connect via SSH.
 **required**
-#### path 
+#### path
 Path where latest revision will be deployed to. (All older builds lands in parent directory).
 **required**
-#### port 
+#### port
 SSH port on target server, default: `22`.
 **optional**
-#### directory 
+#### directory
 Directory that will be uploaded, default: `tmp/deploy-dist/`.
 **optional**
 #### exclude
@@ -64,4 +64,8 @@ More complex logging.
 **optional**
 #### flags
 Flags to pass to the [rsync](https://www.npmjs.com/package/rsync#flagsflags-set) command, default: `rtvu`.
+**optional**
+#### options
+Options to pass to the [rsync](https://www.npmjs.com/package/rsync#setoption-value) command, default: `{}`
+e.g `{ partial: null, 'rsync-path': 'mkdir -p /a/great/directory && rsync' }`
 **optional**
