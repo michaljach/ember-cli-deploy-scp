@@ -1,75 +1,94 @@
-var BasePlugin = require('ember-cli-deploy-plugin');
-var Rsync = require('rsync');
+/* eslint-env node */
 
-var DEFAULT_PORT = 22;
+"use strict";
+
+let BasePlugin = require('ember-cli-deploy-plugin');
+let Rsync = require('rsync');
+
+const DEFAULT_PORT = 22;
 
 // takes an array of functions, each returning a promise when invoked
-var sequentially = function(iterable) {
+let sequentially = function(iterable) {
   return iterable.reduce((sum, func) => {
     return sum.then(() => func());
   }, Promise.resolve());
 };
 
+// An ISO8601 string without separators (not allowed in directory names),
+// so something like 20160327T0701, which is equivalent to 2016-03-27T07:01
+let iso8601DirectoryName = function() {
+  return (new Date()).toISOString().replace(/[-:\.]/g, '').slice(0, 13);
+};
+
 module.exports = {
   name: 'ember-cli-deploy-scp',
 
-  createDeployPlugin: function(options) {
-    var DeployPlugin = BasePlugin.extend({
+  createDeployPlugin(options) {
+    let DeployPlugin = BasePlugin.extend({
       name: options.name,
 
       defaultConfig: {
-        port: DEFAULT_PORT,
+        port: DEFAULT_PORT, // TODO remove when `nodes` is the only supported config
         directory: 'tmp/deploy-dist/.',
         exclude: false,
         flags: 'rtvu',
         displayCommands: false,
         options: {},
-        beforeBuild: function() {},
-        beforeUpload: function() {},
+        beforeBuild: () => {},
+        beforeUpload: () => {},
       },
 
-      willBuild: function(context) {
+      // NOTE when `nodes` is the only supported
+      // syntax we can uncomment this setting
+      // requiredConfig: ['nodes'],
+
+      willBuild(context) {
         this.readConfig('beforeBuild');
       },
 
-      willUpload: function(context) {
+      willUpload(context) {
         this.readConfig('beforeUpload');
       },
 
-      build: function(context) {
-      },
+      build(context) {},
 
-      rsync: function (destination, port) {
-        var _this = this;
-        var rsync = new Rsync()
+      rsync(destination, port) {
+        let rsync = new Rsync()
           .shell('ssh -p ' + port)
           .flags(this.readConfig('flags'))
           .source(this.readConfig('directory'))
           .destination(destination);
 
-        Object.keys(this.readConfig('options')).forEach(function(key) {
-          rsync.set(key, _this.readConfig('options')[key]);
+        let opts = this.readConfig('options');
+        Object.keys(opts).forEach((key) => {
+          rsync.set(key, opts[key]);
         });
 
-        if (this.readConfig('exclude')){
+        if (this.readConfig('exclude')) {
           rsync.exclude(this.readConfig('exclude'));
         }
 
+        // TOOD remove in a future release
         if (this.readConfig('displayCommands')) {
-          this.log(rsync.command())
-        } else {
-          _this.log(rsync.command(), { verbose: true });
+          this.log('DEPRECATED: use the --verbose flag instead of `displayCommands` to print rsync commands', {
+            color: 'orange',
+          });
+
+          this.log(rsync.command());
         }
 
-        return new Promise(function(resolve, reject) {
-          rsync.execute(function(error, code, cmd) {
-              if (error) {
-                _this.log(error);
-                reject(error);
-              } else {
-                _this.log('Done !');
-                resolve();
-              }
+        // log rsync command in verbose mode
+        this.log(rsync.command(), { verbose: true });
+
+        return new Promise((resolve, reject) => {
+          rsync.execute((error, code, cmd) => {
+            if (error) {
+              this.log(error);
+              reject(error);
+            } else {
+              this.log('Done!');
+              resolve();
+            }
           });
         });
       },
@@ -79,42 +98,64 @@ module.exports = {
           return context.revisionData.revisionKey;
         }
 
-        // An ISO8601 string without separators (not allowed in directory names),
-        // so something like 20160327T0701, which is equivalent to 2016-03-27T07:01
-        return (new Date()).toISOString().replace(/[-:\.]/g, '').slice(0, 13);
+        return iso8601DirectoryName();
       },
 
-      upload: function(context) {
-        var revisionKey = this.revisionKey(context);
-        var nodes = this.readConfig('nodes');
+      upload(context) {
+        let revisionKey = this.revisionKey(context);
+        let nodes = this.readConfig('nodes');
 
         if (this.readConfig('username')) {
-          var username    = this.readConfig('username');
-          var host        = this.readConfig('host');
-          var path        = this.readConfig('path');
-          var port        = this.readConfig('port');
+          this.log('This syntax has been deprecated in favour of the `nodes` option, see repo README for details', {
+            color: 'orange',
+          });
+
+          let username    = this.readConfig('username');
+          let host        = this.readConfig('host');
+          let path        = this.readConfig('path');
+          let port        = this.readConfig('port');
 
           return _upload(username, host, port, path, revisionKey);
         } else if (nodes) {
           return sequentially(nodes.map((n) => {
-            var username    = n.username;
-            var host        = n.host;
-            var path        = n.path;
-            var port        = n.port || DEFAULT_PORT;
+            let username    = n.username;
+            let host        = n.host;
+            let path        = n.path;
+            let port        = n.port || DEFAULT_PORT;
 
+            if (!username) {
+              _missingNodeConfig('username');
+            }
+
+            if (!host) {
+              _missingNodeConfig('host');
+            }
+
+            if (!path) {
+              _missingNodeConfig('path');
+            }
+
+            // function wrapper needed by the `sequentially` helper, otherwise they would
+            // still execute in parallel
             return () => { return this._upload(username, host, port, path, revisionKey); }
           }));
         }
       },
 
-      _upload: function(username, host, port, path, revisionKey) {
-        var targetPath = username + '@' + host + ':' + path;
+      _missingNodeConfig(key) {
+        let message = `Objects in the nodes array must have '${key}' (see readme)`;
+        this.log(message, { color: 'red' });
+        throw new Error(message);
+      },
+
+      _upload(username, host, port, path, revisionKey) {
+        let targetPath = `${username}@${host}:${path}`;
         return this._uploadFiles(targetPath, revisionKey, port);
       },
 
-      _uploadFiles: function(targetPath, revisionKey, port) {
-        this.log('Beginning upload to ' + targetPath, { verbose: true });
-        var parentPath = targetPath.substr(0, targetPath.lastIndexOf('/'));
+      _uploadFiles(targetPath, revisionKey, port) {
+        this.log(`Beginning upload to ${targetPath}`, { verbose: true });
+        let parentPath = targetPath.substr(0, targetPath.lastIndexOf('/'));
 
         return this.rsync(parentPath + '/' + revisionKey, port).then(() => {
           return this.rsync(targetPath, port);
