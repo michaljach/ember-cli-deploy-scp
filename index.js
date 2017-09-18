@@ -15,8 +15,8 @@ module.exports = {
         flags: 'rtvu',
         displayCommands: false,
         options: {},
-        beforeBuild: function(){},
-        beforeUpload: function(){}
+        beforeBuild: function() {},
+        beforeUpload: function() {}
       },
 
       requiredConfig: ['username', 'path', 'host'],
@@ -24,15 +24,18 @@ module.exports = {
       willBuild: function(context) {
         this.readConfig('beforeBuild');
       },
+
       willUpload: function(context) {
         this.readConfig('beforeUpload');
       },
+
       build: function(context) {
       },
+
       rsync: function (destination) {
         var _this = this;
         var rsync = new Rsync()
-          .shell('ssh -p '+this.readConfig('port'))
+          .shell('ssh -p ' + this.readConfig('port'))
           .flags(this.readConfig('flags'))
           .source(this.readConfig('directory'))
           .destination(destination);
@@ -51,7 +54,7 @@ module.exports = {
 
         return new Promise(function(resolve, reject) {
           rsync.execute(function(error, code, cmd) {
-              if(error) {
+              if (error) {
                 reject(_this.log(error));
               } else {
                 _this.log('Done !');
@@ -69,7 +72,12 @@ module.exports = {
         var MyDate = new Date();
         MyDate.setDate(MyDate.getDate());
 
-        return ('0' + MyDate.getDate()).slice(-2) + ('0' + (MyDate.getMonth()+1)).slice(-2) + MyDate.getFullYear() + ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
+        var date = ('0' + MyDate.getDate()).slice(-2);
+        var month = ('0' + (MyDate.getMonth() + 1)).slice(-2);
+        var year = MyDate.getFullYear();
+        var time = ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
+
+        return date + month + year + time;
       },
 
       upload: function(context) {
