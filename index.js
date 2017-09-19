@@ -72,15 +72,9 @@ module.exports = {
           return context.revisionData.revisionKey;
         }
 
-        var MyDate = new Date();
-        MyDate.setDate(MyDate.getDate());
-
-        var date = ('0' + MyDate.getDate()).slice(-2);
-        var month = ('0' + (MyDate.getMonth() + 1)).slice(-2);
-        var year = MyDate.getFullYear();
-        var time = ('0' + MyDate.getHours()).slice(-2) + ('0' + MyDate.getMinutes()).slice(-2);
-
-        return date + month + year + time;
+        // An ISO8601 string without separators (not allowed in directory names),
+        // so something like 20160327T0701, which is equivalent to 2016-03-27T07:01
+        return (new Date()).toISOString().replace(/[-:\.]/g, '').slice(0, 13);
       },
 
       upload: function(context) {
