@@ -1,6 +1,15 @@
 var BasePlugin = require('ember-cli-deploy-plugin');
 var Rsync = require('rsync');
 
+var DEFAULT_PORT = 22;
+
+// takes an array of functions, each returning a promise when invoked
+var sequentially = function(iterable) {
+  return iterable.reduce((sum, func) => {
+    return sum.then(() => func());
+  }, Promise.resolve());
+};
+
 module.exports = {
   name: 'ember-cli-deploy-scp',
 
@@ -9,17 +18,15 @@ module.exports = {
       name: options.name,
 
       defaultConfig: {
-        port: '22',
+        port: DEFAULT_PORT,
         directory: 'tmp/deploy-dist/.',
         exclude: false,
         flags: 'rtvu',
         displayCommands: false,
         options: {},
         beforeBuild: function() {},
-        beforeUpload: function() {}
+        beforeUpload: function() {},
       },
-
-      requiredConfig: ['username', 'path', 'host'],
 
       willBuild: function(context) {
         this.readConfig('beforeBuild');
@@ -32,10 +39,10 @@ module.exports = {
       build: function(context) {
       },
 
-      rsync: function (destination) {
+      rsync: function (destination, port) {
         var _this = this;
         var rsync = new Rsync()
-          .shell('ssh -p ' + this.readConfig('port'))
+          .shell('ssh -p ' + port)
           .flags(this.readConfig('flags'))
           .source(this.readConfig('directory'))
           .destination(destination);
@@ -78,13 +85,44 @@ module.exports = {
       },
 
       upload: function(context) {
-        var generatedPath = this.readConfig('username') + '@' + this.readConfig('host') + ':' + this.readConfig('path'),
-            parentPath = generatedPath.substr(0, generatedPath.lastIndexOf("/"));
+        var revisionKey = this.revisionKey(context);
+        var nodes = this.readConfig('nodes');
 
-        return this.rsync(parentPath + '/' + this.revisionKey(context)).then(() => {
-          return this.rsync(generatedPath);
+        if (this.readConfig('username')) {
+          var username    = this.readConfig('username');
+          var host        = this.readConfig('host');
+          var path        = this.readConfig('path');
+          var port        = this.readConfig('port');
+
+          return _upload(username, host, port, path, revisionKey);
+        } else if (nodes) {
+          return sequentially(nodes.map((n) => {
+            var username    = n.username;
+            var host        = n.host;
+            var path        = n.path;
+            var port        = n.port || DEFAULT_PORT;
+
+            return () => { return this._upload(username, host, port, path, revisionKey); }
+          }));
+        }
+      },
+
+      _upload: function(username, host, port, path, revisionKey) {
+        var targetPath = username + '@' + host + ':' + path;
+        return this._uploadFiles(targetPath, revisionKey, port);
+      },
+
+      _uploadFiles: function(targetPath, revisionKey, port) {
+        this.log('Beginning upload to ' + targetPath, { verbose: true });
+        var parentPath = targetPath.substr(0, targetPath.lastIndexOf('/'));
+
+        return this.rsync(parentPath + '/' + revisionKey, port).then(() => {
+          return this.rsync(targetPath, port);
+        }).then((res) => {
+          this.log('Upload completed', { verbose: true });
+          return res;
         });
-      }
+      },
     });
 
     return new DeployPlugin();
