@@ -50,12 +50,15 @@ module.exports = {
 
         if (this.readConfig('displayCommands')) {
           this.log(rsync.command())
+        } else {
+          _this.log(rsync.command(), { verbose: true });
         }
 
         return new Promise(function(resolve, reject) {
           rsync.execute(function(error, code, cmd) {
               if (error) {
-                reject(_this.log(error));
+                _this.log(error);
+                reject(error);
               } else {
                 _this.log('Done !');
                 resolve();
