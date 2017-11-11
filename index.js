@@ -71,7 +71,7 @@ module.exports = {
         // TOOD remove in a future release
         if (this.readConfig('displayCommands')) {
           this.log('DEPRECATED: use the --verbose flag instead of `displayCommands` to print rsync commands', {
-            color: 'orange',
+            color: 'yellow',
           });
 
           this.log(rsync.command());
@@ -107,7 +107,7 @@ module.exports = {
 
         if (this.readConfig('username')) {
           this.log('This syntax has been deprecated in favour of the `nodes` option, see repo README for details', {
-            color: 'orange',
+            color: 'yellow',
           });
 
           let username    = this.readConfig('username');
