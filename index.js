@@ -115,7 +115,7 @@ module.exports = {
           let path        = this.readConfig('path');
           let port        = this.readConfig('port');
 
-          return _upload(username, host, port, path, revisionKey);
+          return this._upload(username, host, port, path, revisionKey);
         } else if (nodes) {
           return sequentially(nodes.map((n) => {
             let username    = n.username;
