@@ -52,7 +52,7 @@ Key          | Description
 `exclude` | Exclude specified files and directories from uploading.
 `flags` | Flags to pass to the [rsync](https://www.npmjs.com/package/rsync#flagsflags-set) command (default is `rtvu`).
 `options` | Options to pass to the [rsync](https://www.npmjs.com/package/rsync#setoption-value) command (empty by default). For example `{ 'rsync-path': 'mkdir -p /a/great/directory && rsync' }`
-
+`revisions` | Enable upload of revisions, defaults to `true`.
 
 ## Common Issues
 
