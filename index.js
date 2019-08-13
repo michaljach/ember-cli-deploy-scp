@@ -34,6 +34,7 @@ module.exports = {
         flags: 'rtvu',
         displayCommands: false,
         options: {},
+        revisions: true,
         beforeBuild: () => {},
         beforeUpload: () => {},
       },
@@ -122,6 +123,7 @@ module.exports = {
             let host        = n.host;
             let path        = n.path;
             let port        = n.port || DEFAULT_PORT;
+            let shouldUploadRevisions = n.revisions !== undefined ? n.revisions : true;
 
             if (!username) {
               _missingNodeConfig('username');
@@ -137,7 +139,7 @@ module.exports = {
 
             // function wrapper needed by the `sequentially` helper, otherwise they would
             // still execute in parallel
-            return () => { return this._upload(username, host, port, path, revisionKey); }
+            return () => { return this._upload(username, host, port, path, shouldUploadRevisions, revisionKey); }
           }));
         }
       },
@@ -148,21 +150,30 @@ module.exports = {
         throw new Error(message);
       },
 
-      _upload(username, host, port, path, revisionKey) {
+      _upload(username, host, port, path, shouldUploadRevisions, revisionKey) {
         let targetPath = `${username}@${host}:${path}`;
-        return this._uploadFiles(targetPath, revisionKey, port);
+        return this._uploadFiles(targetPath, port, shouldUploadRevisions, revisionKey);
       },
 
-      _uploadFiles(targetPath, revisionKey, port) {
+      async _uploadFiles(targetPath, port, shouldUploadRevisions, revisionKey) {
         this.log(`Beginning upload to ${targetPath}`, { verbose: true });
-        let parentPath = targetPath.substr(0, targetPath.lastIndexOf('/'));
 
-        return this.rsync(parentPath + '/' + revisionKey, port).then(() => {
-          return this.rsync(targetPath, port);
-        }).then((res) => {
-          this.log('Upload completed', { verbose: true });
-          return res;
-        });
+        await shouldUploadRevisions ? this._uploadRevision(targetPath, port, revisionKey) : Promise.resolve();
+        let res = await this._uploadRelease(targetPath, port);
+
+        this.log('Upload completed', { verbose: true });
+        return res;
+      },
+
+      _uploadRelease(path, port) {
+        return this.rsync(path, port);
+      },
+
+      _uploadRevision(basePath, port, revisionKey) {
+        let parentPath = basePath.substr(0, basePath.lastIndexOf('/'));
+        let revisionPath = parentPath + '/' + revisionKey;
+
+        return this.rsync(revisionPath, port);
       },
     });
 
